@@ -1,0 +1,15 @@
+[package]
+name = "photon_player"
+version = "0.1.0"
+edition = "2021"
+[dependencies]
+slint = { version = "1.8", features = ["raw-window-handle-06"] }
+raw-window-handle = "0.6"
+libmpv-sys = "3.1.0"
+windows = { version = "0.56", features = [
+	"Win32_Foundation",
+	"Win32_UI_WindowsAndMessaging"
+] }
+
+[build-dependencies]
+slint-build = "1.8"  # <--- I missed this line before!

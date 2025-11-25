@@ -1,0 +1,106 @@
+import { Slider, VerticalBox, HorizontalBox, Button } from "std-widgets.slint";
+
+export component AppWindow inherits Window {
+    title: "Photon Player";
+    width: 800px;
+    height: 600px;
+    background: #000000;
+
+    in-out property <float> duration: 100.0;
+    in-out property <float> position: 0.0;
+    in-out property <string> time-string: "00:00 / 00:00";
+    in-out property <bool> is-paused: false;
+
+    callback toggle-pause();
+    callback seek-video(float);
+    callback key-pressed(string);
+
+    VerticalBox {
+        padding: 0px;
+        spacing: 0px;
+
+        // Video area (black rectangle where MPV renders)
+        video_area := Rectangle {
+            background: black;
+            vertical-stretch: 1;
+
+            FocusScope {
+                width: 100%;
+                height: 100%;
+                key-pressed(event) => {
+                    root.key-pressed(event.text);
+                    accept
+                }
+            }
+
+            TouchArea {
+                width: 100%;
+                height: 100%;
+                clicked => { root.toggle-pause(); }
+            }
+        }
+
+        // Control bar at bottom
+        Rectangle {
+            height: 80px;
+            background: #2a2a2a;
+
+            HorizontalBox {
+                padding: 15px;
+                spacing: 15px;
+                alignment: center;
+
+                // Play / Pause button
+                Rectangle {
+                    width: 50px;
+                    height: 50px;
+                    border-radius: 8px;
+                    background: #444444;
+
+                    TouchArea {
+                        clicked => { root.toggle-pause(); }
+
+                        Rectangle {
+                            background: parent.pressed ? #555555 : (parent.has-hover ? #4a4a4a : transparent);
+                            border-radius: 8px;
+                        }
+                    }
+
+                    Text {
+                        text: root.is-paused ? "▶" : "⏸";
+                        color: white;
+                        font-size: 28px;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                }
+
+                // Progress bar (slider)
+                Rectangle {
+                    horizontal-stretch: 1;
+                    height: 16px;
+
+                    Slider {
+                        horizontal-stretch: 1;
+                        minimum: 0.0;
+                        maximum: root.duration;
+                        value: root.position;
+                        changed(val) => {
+                            root.position = val;
+                            root.seek-video(val);
+                        }
+                    }
+                }
+
+                // Time label
+                Text {
+                    text: root.time-string;
+                    color: white;
+                    font-size: 16px;
+                    min-width: 120px;
+                    horizontal-alignment: right;
+                }
+            }
+        }
+    }
+}
